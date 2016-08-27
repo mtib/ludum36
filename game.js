@@ -158,8 +158,6 @@ function handle(text) {
 }
 
 function keyup(event) {
-  console.log(hist_lookup)
-  console.log(hist_curr + "/" + hist_lookup.length)
   switch (event.keyCode) {
   case 13:
     hist_curr=0
