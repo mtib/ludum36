@@ -1,6 +1,8 @@
 var pic = document.getElementById("picture")
 var ans = document.getElementById("answer")
 var inp = document.getElementById("input")
+var hist_lookup = []
+var hist_curr = 0
 
 let call_obj = {
   current: function(){},
@@ -53,19 +55,33 @@ function load_pic(name) {
   }
 }
 
+function highlight(text) {
+  s = text.split(" ")
+  for (i in s) {
+    if (s[i].length > 1 && s[i][0] != "\"" && s[i].toUpperCase() == s[i]) {
+      if (valin(s[i][s[i].length-1], ".,:;!")) {
+        s[i] = "<b class='command'>" + s[i].slice(0,-1) + "</b>" + s[i].slice(-1)
+      } else {
+        s[i] = "<b class='command'>" + s[i] + "</b>"
+      }
+    }
+  }
+  return s.join(" ")
+}
+
 function answer(text) {
-  ans.innerHTML = text
+  ans.innerHTML = highlight(text)
 }
 
 function append(text) {
-  ans.innerHTML += text
+  ans.innerHTML += highlight(text)
 }
 
 function appendln(text){
   if (!ans.innerHTML[ans.innerHTML.length-1] == '\n') {
     ans.innerHTML += '\n'
   }
-  ans.innerHTML += text
+  ans.innerHTML += highlight(text)
 }
 
 function echo(text) {
@@ -82,16 +98,23 @@ function handle(text) {
   switch (spl[spl.length-1].toLowerCase()) {
   case "north":
     call_obj.move(NORTH)
-    break
+    return
   case "east":
     call_obj.move(EAST)
-    break
+    return
   case "south":
     call_obj.move(SOUTH)
-    break
+    return
   case "west":
     call_obj.move(WEST)
-    break
+    return
+  }
+
+  if (text.toLowerCase() == "help") {
+    answer("Use NORTH, EAST, SOUTH, WEST to move around")
+    appendln("Use PICK UP, TAKE to get stuff")
+    appendln("Use ATTACK, HURT, KILL to attempt to attack")
+    return
   }
 
   if (gvalin(["take", "pick", "get"], spl)) {
@@ -114,7 +137,19 @@ function handle(text) {
       spl.shift()
     }
     rates = fuzzy(spl.join(" "), call_obj.current_tile.characters.map(function(obj){return obj.show}))
-    console.log(rates)
+    min = 1e10
+    min_index = -1
+    let x = 0
+    for (r in rates) {
+      if (rates[r] < min) {
+        min = rates[r]
+        min_index = x
+      }
+      x++
+    }
+    if (min_index != -1) {
+      appendln("So you want to attack " + call_obj.current_tile.characters[min_index].show)
+    }
     return
   }
 
@@ -124,21 +159,39 @@ function handle(text) {
 
 function keyup(event) {
   switch (event.keyCode) {
-    case 13:
-      enter()
-      break
-    case 27:
-      inp.value=""
-      break
-    default:
-      // nothing
-      // maybe fuzzy complete?
+  case 13:
+    hist_curr=0
+    enter()
+    break
+  case 27:
+    hist_curr=0
+    inp.value=""
+    break
+  case 38:
+    if (hist_curr < hist_lookup.length) {
+      inp.value = hist_lookup[hist_curr++]
+    }
+  default:
+    //console.log(event.keyCode)
+    // nothing
+    // maybe fuzzy complete?
   }
 }
 
 function enter() {
   let input = inp.value
+  if (input == "") {
+    return
+  }
   inp.value = ""
+  console.log(hist_lookup)
+  if (hist_lookup.length != 0) {
+    if (input != hist_lookup[0]){
+      hist_lookup.unshift(input)
+    }
+  } else {
+    hist_lookup.unshift(input)
+  }
   call_obj.current(input)
 }
 

@@ -68,7 +68,7 @@ function fuzzy_rate(input, output) {
       if (input[y-1] == output[x-1]) {
         s = 0
       }
-      console.log(x+","+y+" :: "+ (matrix[y][x-1] +1) + " or " + (matrix[y-1][x] + 1)+ " or " + (matrix[y-1][x-1] + s))
+      //console.log(x+","+y+" :: "+ (matrix[y][x-1] +1) + " or " + (matrix[y-1][x] + 1)+ " or " + (matrix[y-1][x-1] + s))
       matrix[y][x] = Math.min(
         matrix[y][x-1] + 1,
         matrix[y-1][x] + 1,
@@ -76,6 +76,7 @@ function fuzzy_rate(input, output) {
       )
     }
   }
+  /*
   debug=""
   for (line in matrix) {
     if (line > 0)
@@ -94,6 +95,7 @@ function fuzzy_rate(input, output) {
     debug += '\n'
   }
   console.log(debug)
+  */
   return matrix[input.length-1][output.length-1]
 }
 
