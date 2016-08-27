@@ -19,6 +19,13 @@ function tile(img="", items=[], chars=[], events=[]){
   this.events = events
 }
 
+function sheep() {
+  this.char = new character()
+  this.show = "a sheep"
+  this.name = "Sheep Sheep"
+  this.show_class = "animal"
+}
+
 /*
 
 tt t
@@ -44,7 +51,7 @@ var map = [
   ],
 
   [
-    new tile("", [], [new character()]), 0, new tile(), new tile()
+    new tile("", [], [new character(), new sheep()]), 0, new tile(), new tile()
   ],
 
   [

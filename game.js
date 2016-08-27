@@ -34,13 +34,16 @@ let call_obj = {
       let c = mo.characters[char]
       pic.innerHTML += "you see <b class='"+ c.show_class +"'>" + c.show + "</b>\n"
     }
+    call_obj.current_tile = mo
   },
   excuses: [
     function(dir) {return "You ran into a wall going " + dir[2]},
     function(dir) {return "Trying to go " + dir[2] + " you got turned around"},
     function(dir) {return "You don't find a way leading " + dir[2]},
   ],
+  current_tile: 0,
 }
+call_obj.current_tile = map[call_obj.y][call_obj.x]
 
 function load_pic(name) {
   if (name in pics) {
@@ -103,9 +106,20 @@ function handle(text) {
       return
     }
     appendln("you want to pick "+spl.join(" ")+" up, don't you?")
+    return
+  }
+
+  if (gvalin(["kill", "attack", "hurt"], spl)) {
+    while (valin(spl[0], ["kill", "attack", "hurt"])) {
+      spl.shift()
+    }
+    rates = fuzzy(spl.join(" "), call_obj.current_tile.characters.map(function(obj){return obj.show}))
+    console.log(rates)
+    return
   }
 
   appendln("I do not know how to \"{0}\"".format(text))
+  return
 }
 
 function keyup(event) {
