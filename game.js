@@ -110,7 +110,7 @@ function handle(text) {
     return
   }
 
-  if (text.toLowerCase() == "help") {
+  if (text == "help") {
     answer("Use NORTH, EAST, SOUTH, WEST to move around")
     appendln("Use PICK UP, TAKE to get stuff")
     appendln("Use ATTACK, HURT, KILL to attempt to attack")
@@ -158,6 +158,8 @@ function handle(text) {
 }
 
 function keyup(event) {
+  console.log(hist_lookup)
+  console.log(hist_curr + "/" + hist_lookup.length)
   switch (event.keyCode) {
   case 13:
     hist_curr=0
@@ -169,8 +171,19 @@ function keyup(event) {
     break
   case 38:
     if (hist_curr < hist_lookup.length) {
-      inp.value = hist_lookup[hist_curr++]
+      console.log("up")
+      inp.value = hist_lookup[hist_curr]
+      hist_curr+=1
     }
+    break
+  case 40:
+    if (hist_curr > 0) {
+      hist_curr -= 1
+      inp.value = hist_lookup[hist_curr]
+    } else {
+      inp.value = ""
+    }
+    break
   default:
     //console.log(event.keyCode)
     // nothing
@@ -179,7 +192,7 @@ function keyup(event) {
 }
 
 function enter() {
-  let input = inp.value
+  let input = inp.value.trim().toLowerCase()
   if (input == "") {
     return
   }
