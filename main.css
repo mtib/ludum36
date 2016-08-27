@@ -14,6 +14,10 @@ pre {
   padding: .2em;
 }
 
+h1, h2 {
+  font-family: monospace;
+}
+
 #picture {
   border-bottom: 5px solid #373737;
 }
@@ -27,4 +31,16 @@ pre {
 
 #input {
   width: 100%;
+}
+
+/* BOLD STYLES */
+.person {
+
+}
+.enemy {
+  color: red;
+}
+.place {
+  font-style: italic;
+  color: rgb(240, 212, 30);
 }
