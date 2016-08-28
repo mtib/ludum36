@@ -83,7 +83,7 @@ var map = [
   ],
 
   [
-    new tile("grassland"), new tile("desert"), new tile("mountains"), 0
+    new tile("grassland"), new tile("desert"), new tile("mountain"), 0
   ],
 
   [
