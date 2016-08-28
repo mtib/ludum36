@@ -4,6 +4,14 @@ const DRALAIR = "dragons lair"
 var pics = {
   "hello": "[ HELLO ]",
   "dragons lair": "It looks like <b class='place'>a dragons lair</b>",
+  "hill": "You are standing on a small hill",
+  "grassland": "You see grassy plains all around you",
+  "cave": "You are in a cave",
+  "caveentrance": "You stand in front of a cave",
+  "river": "A small river is running by",
+  "lake": "You find yourself at the coast of a lake",
+  "mountain": "You are standing at the feet of a mountain",
+  "desert": "Vegetation around here is dying",
 }
 
 function character() {
@@ -37,7 +45,7 @@ function sheep() {
 
 function sword() {
   this.show = "a sword"
-  this.name = "legendary sword"
+  this.name = "sword"
   this.attack = 12
   this.show_class = "item weapon"
   this.use = function(user) {
@@ -67,23 +75,23 @@ endboss.show_class = "enemy"
 
 var map = [
   [
-    new tile("", [], [new sheep()]), new tile(), 0, new tile(DRALAIR, [], [endboss])
+    new tile("hello", [], [new sheep()]), new tile("hill"), 0, new tile(DRALAIR, [], [endboss])
   ],
 
   [
-    new tile("", [new sword()], [new character(), new sheep()]), 0, new tile(), new tile()
+    new tile("river", [new sword()], [new character(), new sheep()]), 0, new tile("caveentrance"), new tile("cave")
   ],
 
   [
-    new tile(), new tile(), new tile(), 0
+    new tile("grassland"), new tile("desert"), new tile("mountains"), 0
   ],
 
   [
-    new tile(), new tile(), new tile(), new tile()
+    new tile("lake"), new tile("grassland"), new tile("grassland"), new tile("lake")
   ],
 
   [
-    0, 0, new tile(), new tile()
+    0, 0, new tile("lake"), new tile("lake")
   ]
 ]
 
