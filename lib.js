@@ -106,3 +106,8 @@ function fuzzy(input, options) {
   }
   return result
 }
+
+// [min;max)
+function rint(min, max) {
+  return Math.floor(Math.random()*(max-min)+min)
+}

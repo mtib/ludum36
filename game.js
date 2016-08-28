@@ -14,20 +14,15 @@ let call_obj = {
     if (!(ny < 0 || nx < 0 || map.length <= ny || map[ny].length <= nx || map[ny][nx] == 0)) {
       pic.innerHTML = ""
       ans.innerHTML = ""
-      for (let event in map[nx][ny].events) {
-        event()
-      }
       call_obj.x = nx
       call_obj.y = ny
     } else {
       answer(
-        call_obj.excuses[
-          Math.floor(Math.random()*call_obj.excuses.length)
-        ](direction)
+        call_obj.excuses(direction)
       )
     }
     mo = map[call_obj.y][call_obj.x]
-    console.log(mo)
+    mo.events.forEach(function(e){e(call_obj,mo)})
     call_obj.draw()
     call_obj.current_tile = mo
   },
@@ -45,24 +40,46 @@ let call_obj = {
       pic.innerHTML += "you can see <b class='"+i.show_class+"'>" + i.show + "</b> " + call_obj.wheres()
     }
   },
-  excuses: [
-    function(dir) {return "You ran into a wall going " + dir[2]},
-    function(dir) {return "Trying to go " + dir[2] + " you got turned around"},
-    function(dir) {return "You don't find a way leading " + dir[2]},
-  ],
+  excuses: function(dir) {
+    let dn = dir[2]
+    switch (mo.image_name) {
+    case "lake":
+      let p = [
+        "All you see is lake in the "+ dn,
+        "The lake expands in the " + dn,
+        "Just lake in the " + dn,
+        "You don't see land in the " +dn,
+      ]
+      return p[rint(0,p.length)]
+    case "mountain":
+      return "The mountains are to steep in the "+dn
+    case "cave":
+      return "The cave doesn't head "+ dn
+    case DRALAIR:
+      return "You can't leave in that direction"
+    default:
+      let d = [
+        "You ran into a wall going "+dn,
+        "You got turned around going "+dn,
+        "You can't find a way heading "+dn,
+      ]
+      return d[rint(0,d.length)]
+    }
+  },
   wheres: function() {
     pos = [
       "on the ground",
       "in a tree",
       "in a stone"
     ]
-    return pos[Math.floor(Math.random()*pos.length)]
+    return pos[rint(0,pos.length)]
   },
   current_tile: 0,
   weapon_name: "fists",
   weapon_damage: 3,
   max_health: 10,
   health: 10,
+  map: undefined,
   check: function() {
     if (call_obj.health <= 0) {
       answer("Your health reached 0HP.")
@@ -147,11 +164,16 @@ function handle(text) {
     answer("Use NORTH, EAST, SOUTH, WEST to move around")
     appendln("Use PICK UP, TAKE to get stuff")
     appendln("Use ATTACK, HURT, KILL to attempt to attack")
+    appendln("You can also NAP and REST")
     return
   }
 
-  if (valin("look", spl)) {
-    answer("You start looking around")
+  if (valin("map", spl)) {
+    if (call_obj.map != undefined) {
+      call_obj.map.use(call_obj)
+    } else {
+      appendln("You do not own a MAP")
+    }
     return
   }
 
@@ -177,7 +199,7 @@ function handle(text) {
     return min_index
   }
 
-  if (gvalin(["take", "pick", "get"], spl)) {
+  if (gvalin(["take", "pick", "get", "use"], spl)) {
     while (valin(spl[0], ["take", "pick", "up", "get"])) {
       spl.shift()
     }
@@ -260,7 +282,6 @@ function keyup(event) {
     break
   case 38:
     if (hist_curr < hist_lookup.length) {
-      console.log("up")
       inp.value = hist_lookup[hist_curr]
       hist_curr+=1
     }
@@ -286,7 +307,6 @@ function enter() {
     return
   }
   inp.value = ""
-  console.log(hist_lookup)
   if (hist_lookup.length != 0) {
     if (input != hist_lookup[0]){
       hist_lookup.unshift(input)
