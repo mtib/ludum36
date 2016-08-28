@@ -111,8 +111,8 @@ function corpse(item) {
   this.name = "dead warrior"
   this.show_class = "person"
   this.use = function(user) {
-    appendln("You search the body and find:")
-    appendln(" - " + highlight(item))
+    appendln("You search the body")
+    item.use(user)
   }
 }
 
@@ -123,7 +123,7 @@ function bow() {
   this.use = function(user) {
     user.weapon_name = this.name
     user.weapon_damage = Math.floor(Math.random(6)+10)
-    appendln("You find " + highlight(this))
+    appendln("You find and equip <b class='item weapon'>oathbow</b>")
     appendln("and a couple of arrows")
   }
 }

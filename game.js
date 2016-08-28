@@ -199,8 +199,8 @@ function handle(text) {
     return min_index
   }
 
-  if (gvalin(["take", "pick", "get", "use"], spl)) {
-    while (valin(spl[0], ["take", "pick", "up", "get"])) {
+  if (gvalin(["take", "pick", "get", "use", "search", "inspect"], spl)) {
+    while (valin(spl[0], ["take", "pick", "up", "get", "search", "inspect"])) {
       spl.shift()
     }
     if (spl[spl.length-1] == "up") {
