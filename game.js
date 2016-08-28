@@ -36,6 +36,10 @@ let call_obj = {
       let c = mo.characters[char]
       pic.innerHTML += "you see <b class='"+ c.show_class +"'>" + c.show + "</b>\n"
     }
+    for (let item in mo.items) {
+      let i = mo.items[item]
+      pic.innerHTML += "you can see <b class='"+i.show_class+"'>" + i.show + "</b> " + call_obj.wheres()
+    }
     call_obj.current_tile = mo
   },
   excuses: [
@@ -43,7 +47,29 @@ let call_obj = {
     function(dir) {return "Trying to go " + dir[2] + " you got turned around"},
     function(dir) {return "You don't find a way leading " + dir[2]},
   ],
+  wheres: function() {
+    pos = [
+      "on the ground",
+      "in a tree",
+      "in a stone"
+    ]
+    return pos[Math.floor(Math.random()*pos.length)]
+  },
   current_tile: 0,
+  weapon_name: "fists",
+  weapon_damage: 3,
+  max_health: 10,
+  health: 10,
+  check: function() {
+    if (call_obj.health <= 0) {
+      answer("Your health reached 0HP.")
+      appendln(". . . here ends your adventure")
+      appendln("\nRELOAD the page to start again")
+      inp.removeEventListener("keyup", keyup)
+      return 0
+    }
+    return 1
+  },
 }
 call_obj.current_tile = map[call_obj.y][call_obj.x]
 
@@ -95,7 +121,7 @@ function handle(text) {
     return
   }
   spl = text.split(" ")
-  switch (spl[spl.length-1].toLowerCase()) {
+  switch (spl[spl.length-1]) {
   case "north":
     call_obj.move(NORTH)
     return
@@ -117,6 +143,33 @@ function handle(text) {
     return
   }
 
+  if (valin("look", spl)) {
+    answer("You start looking around")
+    return
+  }
+
+  if (gvalin(["sleep", "rest", "nap"], spl)){
+    hprecov = Math.min(Math.floor(Math.random()*(call_obj.max_health/2)), call_obj.max_health-call_obj.health)
+    call_obj.health += hprecov
+    answer("you rest for a bit . . .")
+    appendln("you regenerate " + hprecov + "HP")
+    return
+  }
+
+  function fmin(dic) {
+    let min = 1e10
+    let min_index = -1
+    let x = 0
+    for (r in dic) {
+      if (dic[r] < min) {
+        min = dic[r]
+        min_index = x
+      }
+      x++
+    }
+    return min_index
+  }
+
   if (gvalin(["take", "pick", "get"], spl)) {
     while (valin(spl[0], ["take", "pick", "up", "get"])) {
       spl.shift()
@@ -128,27 +181,55 @@ function handle(text) {
       appendln("what?")
       return
     }
-    appendln("you want to pick "+spl.join(" ")+" up, don't you?")
+    let rates = fuzzy(spl.join(" "), call_obj.current_tile.items.map(function(obj){return obj.show}))
+    let min_index = fmin(rates)
+    if (rates[min_index] > 4) {
+      appendln("I don't know how to do that")
+    }
+    appendln("you pick "+stylized(call_obj.current_tile.items[min_index])+" up")
+    call_obj.current_tile.items[min_index].use(call_obj)
     return
+  }
+
+  if (valin(text, ["me", "items", "inventory", "myself", "self"])) {
+    // TODO print info
   }
 
   if (gvalin(["kill", "attack", "hurt"], spl)) {
     while (valin(spl[0], ["kill", "attack", "hurt"])) {
       spl.shift()
     }
-    rates = fuzzy(spl.join(" "), call_obj.current_tile.characters.map(function(obj){return obj.show}))
-    min = 1e10
-    min_index = -1
-    let x = 0
-    for (r in rates) {
-      if (rates[r] < min) {
-        min = rates[r]
-        min_index = x
-      }
-      x++
+    if (valin(spl.slice(-1), ["me", "myself", "i", "self"])) {
+      appendln(". . . what a way to go.")
+      appendln("you start ripping your organs out like a madman")
+      call_obj.health = 0
+      setTimeout(call_obj.check, 3000)
+      return
+    }
+    let rates = fuzzy(spl.join(" "), call_obj.current_tile.characters.map(function(obj){return obj.show}))
+    let min_index = fmin(rates)
+    if (rates[min_index] > 4) {
+      appendln("I don't know how to do that")
     }
     if (min_index != -1) {
-      appendln("So you want to attack " + call_obj.current_tile.characters[min_index].show)
+      target = call_obj.current_tile.characters[min_index]
+      appendln("You attack " + target.show + " with your " + call_obj.weapon_name)
+      if (target.health != undefined) {
+        target.health -= call_obj.weapon_damage
+        if (target.health <= 0) {
+          appendln("You killed " + target.show)
+          call_obj.current_tile.characters.splice(min_index, 1)
+        } else if (target.attack != undefined){
+          target.attack(call_obj)
+          let alive = call_obj.check()
+          if (alive) {
+            appendln("You have "+ call_obj.health + "HP left")
+          }
+        }
+      } else {
+        appendln("You killed " + target.show)
+        call_obj.current_tile.characters.splice(min_index, 1)
+      }
     }
     return
   }
@@ -208,7 +289,12 @@ function enter() {
 
 // Initial Setup
 {
+  function start_game() {
+    call_obj.move([0,0,"START"])
+    inp.removeEventListener("click", start_game)
+  }
   inp.addEventListener("keyup", keyup)
+  inp.addEventListener("click", start_game)
   call_obj.current=handle
   load_pic("hello")
   answer("type HELP for help")

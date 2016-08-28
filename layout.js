@@ -7,9 +7,18 @@ var pics = {
 }
 
 function character() {
-  this.name = "Unknown Unknown"
-  this.show = "an unknown person"
+  this.name = "Person McPersonson"
+  this.show = "a person"
   this.show_class = "person"
+  this.health = 20
+  this.attack = function(who) {
+    who.health -= 4
+    appendln(this.name + " takes a swing at you")
+  }
+}
+
+function stylized(obj) {
+  return "<b class='"+obj.show_class+"'>" + obj.show + "</b>"
 }
 
 function tile(img="", items=[], chars=[], events=[]){
@@ -24,6 +33,17 @@ function sheep() {
   this.show = "a sheep"
   this.name = "Sheep Sheep"
   this.show_class = "animal"
+}
+
+function sword() {
+  this.show = "a sword"
+  this.name = "legendary sword"
+  this.attack = 12
+  this.show_class = "item weapon"
+  this.use = function(user) {
+    user.weapon_name = this.name
+    user.weapon_damage = this.attack
+  }
 }
 
 /*
@@ -47,11 +67,11 @@ endboss.show_class = "enemy"
 
 var map = [
   [
-    new tile(), new tile(), 0, new tile(DRALAIR, [], [endboss])
+    new tile("", [], [new sheep()]), new tile(), 0, new tile(DRALAIR, [], [endboss])
   ],
 
   [
-    new tile("", [], [new character(), new sheep()]), 0, new tile(), new tile()
+    new tile("", [new sword()], [new character(), new sheep()]), 0, new tile(), new tile()
   ],
 
   [

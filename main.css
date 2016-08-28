@@ -46,6 +46,16 @@ h1, h2 {
 .person {
 
 }
+
+.item {
+  font-style: italic;
+  color: rgb(185, 113, 208);
+}
+
+.weapon {
+  color: rgb(43, 217, 219);
+}
+
 .command {
   color: white;
 }
