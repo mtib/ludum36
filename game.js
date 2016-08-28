@@ -28,6 +28,10 @@ let call_obj = {
     }
     mo = map[call_obj.y][call_obj.x]
     console.log(mo)
+    call_obj.draw()
+    call_obj.current_tile = mo
+  },
+  draw: function() {
     if (mo.image_name != "") {
       load_pic(mo.image_name)
       pic.innerHTML += "\n"
@@ -40,7 +44,6 @@ let call_obj = {
       let i = mo.items[item]
       pic.innerHTML += "you can see <b class='"+i.show_class+"'>" + i.show + "</b> " + call_obj.wheres()
     }
-    call_obj.current_tile = mo
   },
   excuses: [
     function(dir) {return "You ran into a wall going " + dir[2]},
@@ -69,6 +72,10 @@ let call_obj = {
       return 0
     }
     return 1
+  },
+  redraw: function() {
+    pic.innerHTML = ""
+    call_obj.draw()
   },
 }
 call_obj.current_tile = map[call_obj.y][call_obj.x]
@@ -188,6 +195,8 @@ function handle(text) {
     }
     appendln("you pick "+stylized(call_obj.current_tile.items[min_index])+" up")
     call_obj.current_tile.items[min_index].use(call_obj)
+    call_obj.current_tile.items.splice(min_index,1)
+    call_obj.redraw()
     return
   }
 
@@ -231,6 +240,7 @@ function handle(text) {
         call_obj.current_tile.characters.splice(min_index, 1)
       }
     }
+    call_obj.redraw()
     return
   }
 
